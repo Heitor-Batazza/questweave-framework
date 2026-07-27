@@ -10,7 +10,7 @@ export interface AreaPresentation {
   accent: number;
   /** Placeholder progress (0-100). */
   progress: number;
-  emoji: string;
+  icon: string;
 }
 
 const AREA_META: Omit<AreaPresentation, "id">[] = [
@@ -18,50 +18,50 @@ const AREA_META: Omit<AreaPresentation, "id">[] = [
     name: "Greetings & Basics",
     description: "Placeholder description for the first steps of the journey.",
     accent: 1,
+    icon: "Hand",
     progress: 42,
-    emoji: "👋",
   },
   {
     name: "Daily Conversations",
     description: "Placeholder description for everyday exchanges.",
     accent: 2,
+    icon: "MessagesSquare",
     progress: 12,
-    emoji: "💬",
   },
   {
     name: "Core Vocabulary",
     description: "Placeholder description for word-building blocks.",
     accent: 3,
+    icon: "Puzzle",
     progress: 0,
-    emoji: "🧩",
   },
   {
     name: "Grammar Foundations",
     description: "Placeholder description for structural patterns.",
     accent: 4,
+    icon: "Blocks",
     progress: 0,
-    emoji: "🏗️",
   },
   {
     name: "Listening Practice",
     description: "Placeholder description for the listening track.",
     accent: 5,
+    icon: "Headphones",
     progress: 0,
-    emoji: "🎧",
   },
   {
     name: "Travel English",
     description: "Placeholder description for the travel track.",
     accent: 6,
+    icon: "Plane",
     progress: 0,
-    emoji: "🧳",
   },
   {
     name: "Business English",
     description: "Placeholder description for the professional track.",
     accent: 7,
+    icon: "Briefcase",
     progress: 0,
-    emoji: "💼",
   },
 ];
 
