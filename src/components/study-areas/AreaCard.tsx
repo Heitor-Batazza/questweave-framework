@@ -60,7 +60,7 @@ export function AreaCard({ area }: { area: StudyArea }) {
         </div>
 
         <div className="min-w-0">
-          <h3 className="truncate text-base font-semibold sm:text-lg">
+          <h3 className="text-base leading-tight font-semibold text-balance sm:text-lg">
             {p.name}
           </h3>
           <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
