@@ -61,8 +61,11 @@ export function TrailPath({ activities, accent }: Props) {
     d += ` C ${prev.x} ${mid}, ${p.x} ${mid}, ${p.x} ${y2}`;
   });
 
-  const completedIndex = points.findIndex(
-    (p) => p.activity.state === "locked",
+  const nextIndex = points.findIndex(
+    (p) =>
+      p.activity.state === "available" ||
+      p.activity.state === "unlocked" ||
+      p.activity.state === "in_progress",
   );
 
   return (
@@ -94,7 +97,7 @@ export function TrailPath({ activities, accent }: Props) {
       {points.map((p, i) => {
         const a = p.activity;
         const Icon = KIND_ICON[a.kind];
-        const isNext = i === completedIndex && a.state !== "locked";
+        const isNext = i === nextIndex;
         const locked = a.state === "locked";
         const completed = a.state === "completed";
         const highlight = a.flags.highlight || a.state === "available";
