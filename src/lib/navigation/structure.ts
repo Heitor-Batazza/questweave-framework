@@ -233,6 +233,78 @@ const A3: ActivityNode[] = [
   },
 ];
 
+// -------- Generated extra study areas (structural only) --------
+function buildArea(
+  index: number,
+  size: number,
+  prevAreaId: string,
+): { area: StudyArea; trail: Trail; activities: ActivityNode[] } {
+  const areaId = `sa${index}`;
+  const trailId = `t${index}`;
+  const activities: ActivityNode[] = Array.from({ length: size }, (_, i) => {
+    const order = i + 1;
+    const id = `a${index}-${String(order).padStart(2, "0")}`;
+    const nextId =
+      order < size ? `a${index}-${String(order + 1).padStart(2, "0")}` : null;
+    const kind: ActivityNode["kind"] =
+      order === size
+        ? "boss"
+        : order % 5 === 0
+          ? "checkpoint"
+          : order % 4 === 0
+            ? "chest"
+            : "standard";
+    return {
+      id,
+      trailId,
+      studyAreaId: areaId,
+      order,
+      kind,
+      state: "locked",
+      flags:
+        kind === "boss"
+          ? { hasReward: true, milestone: true }
+          : kind === "chest"
+            ? { hasChest: true, optional: true }
+            : kind === "checkpoint"
+              ? { milestone: true }
+              : {},
+      unlock:
+        order === 1
+          ? { type: "study_area_completed", studyAreaId: prevAreaId }
+          : {
+              type: "activity_completed",
+              activityId: `a${index}-${String(order - 1).padStart(2, "0")}`,
+            },
+      nextActivityIds: nextId ? [nextId] : [],
+    };
+  });
+  return {
+    area: {
+      id: areaId,
+      order: index,
+      trailId,
+      unlock: { type: "study_area_completed", studyAreaId: prevAreaId },
+    },
+    trail: {
+      id: trailId,
+      studyAreaId: areaId,
+      order: 1,
+      activityIds: activities.map((a) => a.id),
+      startActivityId: activities[0].id,
+      endActivityId: activities[activities.length - 1].id,
+    },
+    activities,
+  };
+}
+
+const EXTRA = [
+  buildArea(4, 8, "sa3"),
+  buildArea(5, 7, "sa4"),
+  buildArea(6, 9, "sa5"),
+  buildArea(7, 6, "sa6"),
+];
+
 const trails: Trail[] = [
   {
     id: "t1",
@@ -258,6 +330,7 @@ const trails: Trail[] = [
     startActivityId: "a3-01",
     endActivityId: "a3-06",
   },
+  ...EXTRA.map((e) => e.trail),
 ];
 
 const studyAreas: StudyArea[] = [
@@ -274,12 +347,13 @@ const studyAreas: StudyArea[] = [
     trailId: "t3",
     unlock: { type: "study_area_completed", studyAreaId: "sa2" },
   },
+  ...EXTRA.map((e) => e.area),
 ];
 
 export const navigationStructure: NavigationStructure = {
   studyAreas,
   trails,
-  activities: [...A1, ...A2, ...A3],
+  activities: [...A1, ...A2, ...A3, ...EXTRA.flatMap((e) => e.activities)],
 };
 
 // -------- Lookup helpers (structural only) --------
