@@ -36,12 +36,12 @@ export function TrailPath({ activities, accent }: Props) {
     return () => ro.disconnect();
   }, []);
 
-  const amplitude = Math.min(width / 2 - NODE / 2 - 12, 110);
+  const amplitude = Math.min(width / 2 - NODE / 2 - 20, 88);
   const centerX = width / 2;
 
   const points = activities.map((a, i) => ({
     activity: a,
-    x: centerX + Math.sin(i * 0.95 + 0.4) * amplitude,
+    x: centerX + Math.sin(i * (Math.PI / 2)) * amplitude,
     y: PAD_Y + i * ROW,
   }));
 
