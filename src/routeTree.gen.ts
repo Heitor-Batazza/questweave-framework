@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TrailTrailIdRouteImport } from './routes/trail.$trailId'
+import { Route as ActivityActivityIdRouteImport } from './routes/activity.$activityId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrailTrailIdRoute = TrailTrailIdRouteImport.update({
+  id: '/trail/$trailId',
+  path: '/trail/$trailId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActivityActivityIdRoute = ActivityActivityIdRouteImport.update({
+  id: '/activity/$activityId',
+  path: '/activity/$activityId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/activity/$activityId': typeof ActivityActivityIdRoute
+  '/trail/$trailId': typeof TrailTrailIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/activity/$activityId': typeof ActivityActivityIdRoute
+  '/trail/$trailId': typeof TrailTrailIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/activity/$activityId': typeof ActivityActivityIdRoute
+  '/trail/$trailId': typeof TrailTrailIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/activity/$activityId' | '/trail/$trailId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/activity/$activityId' | '/trail/$trailId'
+  id: '__root__' | '/' | '/activity/$activityId' | '/trail/$trailId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActivityActivityIdRoute: typeof ActivityActivityIdRoute
+  TrailTrailIdRoute: typeof TrailTrailIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trail/$trailId': {
+      id: '/trail/$trailId'
+      path: '/trail/$trailId'
+      fullPath: '/trail/$trailId'
+      preLoaderRoute: typeof TrailTrailIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/activity/$activityId': {
+      id: '/activity/$activityId'
+      path: '/activity/$activityId'
+      fullPath: '/activity/$activityId'
+      preLoaderRoute: typeof ActivityActivityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActivityActivityIdRoute: ActivityActivityIdRoute,
+  TrailTrailIdRoute: TrailTrailIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
