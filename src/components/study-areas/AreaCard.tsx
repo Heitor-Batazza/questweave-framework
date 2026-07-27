@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, Lock, ListChecks } from "lucide-react";
+import { ChevronRight, Lock, ListChecks, icons } from "lucide-react";
 import type { StudyArea } from "@/lib/navigation/types";
 import {
   AREA_ACCENT_VAR,
@@ -15,6 +15,7 @@ export function AreaCard({ area }: { area: StudyArea }) {
   const count = getAreaActivityCount(area.id);
   const accent = AREA_ACCENT_VAR[p.accent];
   const progress = unlocked ? p.progress : 0;
+  const AreaIcon = icons[p.icon as keyof typeof icons] ?? ListChecks;
 
   return (
     <article
@@ -51,7 +52,11 @@ export function AreaCard({ area }: { area: StudyArea }) {
               "1px solid color-mix(in oklab, var(--card-accent) 40%, transparent)",
           }}
         >
-          <span aria-hidden>{p.emoji}</span>
+          <AreaIcon
+            className="h-6 w-6"
+            style={{ color: "var(--card-accent)" }}
+            aria-hidden
+          />
         </div>
 
         <div className="min-w-0">
