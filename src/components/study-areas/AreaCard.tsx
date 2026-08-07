@@ -1,30 +1,21 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, Lock, ListChecks, icons } from "lucide-react";
+import { ChevronRight, ListChecks } from "lucide-react";
 import type { StudyArea } from "@/lib/navigation/types";
 import {
   AREA_ACCENT_VAR,
   getAreaActivityCount,
   getAreaPresentation,
-  isAreaUnlocked,
 } from "@/lib/navigation/presentation";
-import { cn } from "@/lib/utils";
 
 export function AreaCard({ area }: { area: StudyArea }) {
   const p = getAreaPresentation(area.id);
-  const unlocked = isAreaUnlocked(area.id);
   const count = getAreaActivityCount(area.id);
   const accent = AREA_ACCENT_VAR[p.accent];
-  const progress = unlocked ? p.progress : 0;
-  const AreaIcon = icons[p.icon as keyof typeof icons] ?? ListChecks;
+  const progress = p.progress;
 
   return (
     <article
-      className={cn(
-        "group relative overflow-hidden rounded-3xl border border-border bg-card p-5 transition-all duration-300",
-        unlocked
-          ? "hover:-translate-y-0.5 hover:border-[color-mix(in_oklab,var(--card-accent)_45%,transparent)]"
-          : "opacity-70",
-      )}
+      className="group relative overflow-hidden rounded-3xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_oklab,var(--card-accent)_45%,transparent)]"
       style={
         {
           "--card-accent": accent,
@@ -38,28 +29,17 @@ export function AreaCard({ area }: { area: StudyArea }) {
         style={{
           background:
             "color-mix(in oklab, var(--card-accent) 55%, transparent)",
-          opacity: unlocked ? 0.22 : 0.08,
+          opacity: 0.22,
         }}
       />
 
-      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
-        <div
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-xl"
-          style={{
-            background:
-              "color-mix(in oklab, var(--card-accent) 20%, transparent)",
-            border:
-              "1px solid color-mix(in oklab, var(--card-accent) 40%, transparent)",
-          }}
-        >
-          <AreaIcon
-            className="h-6 w-6"
-            style={{ color: "var(--card-accent)" }}
-            aria-hidden
-          />
-        </div>
-
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
+          <span
+            aria-hidden
+            className="mb-2 block h-1 w-10 rounded-full"
+            style={{ background: "var(--card-accent)" }}
+          />
           <h3 className="text-base leading-tight font-semibold text-balance sm:text-lg">
             {p.name}
           </h3>
@@ -68,16 +48,8 @@ export function AreaCard({ area }: { area: StudyArea }) {
           </p>
         </div>
 
-        <span
-          className={cn(
-            "inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide",
-            unlocked
-              ? "bg-success/15 text-success"
-              : "bg-muted text-muted-foreground",
-          )}
-        >
-          {unlocked ? "Unlocked" : <Lock className="h-3 w-3" />}
-          {!unlocked && "Locked"}
+        <span className="inline-flex shrink-0 items-center rounded-full bg-secondary px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Open
         </span>
       </div>
 
@@ -102,26 +74,15 @@ export function AreaCard({ area }: { area: StudyArea }) {
       </div>
 
       <div className="mt-4">
-        {unlocked ? (
-          <Link
-            to="/trail/$trailId"
-            params={{ trailId: area.trailId }}
-            className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-background transition-transform duration-200 active:scale-[0.98]"
-            style={{ background: "var(--card-accent)" }}
-          >
-            Enter trail
-            <ChevronRight className="h-4 w-4" />
-          </Link>
-        ) : (
-          <button
-            type="button"
-            disabled
-            className="inline-flex w-full cursor-not-allowed items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary px-4 py-2.5 text-sm font-semibold text-muted-foreground"
-          >
-            <Lock className="h-4 w-4" />
-            Complete the previous area
-          </button>
-        )}
+        <Link
+          to="/trail/$trailId"
+          params={{ trailId: area.trailId }}
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-background transition-transform duration-200 active:scale-[0.98]"
+          style={{ background: "var(--card-accent)" }}
+        >
+          Enter trail
+          <ChevronRight className="h-4 w-4" />
+        </Link>
       </div>
     </article>
   );

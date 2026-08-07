@@ -1,21 +1,8 @@
-import { useLayoutEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Check, Flag, Gift, Lock, Package, Play, Skull, Sparkles, Star } from "lucide-react";
+import { Check, Lock, Play } from "lucide-react";
 import type { ActivityNode } from "@/lib/navigation/types";
+import { getActivityPresentation } from "@/lib/navigation/activity-presentation";
 import { cn } from "@/lib/utils";
-
-const KIND_ICON = {
-  standard: Star,
-  checkpoint: Flag,
-  boss: Skull,
-  reward: Gift,
-  chest: Package,
-  secret: Sparkles,
-} as const;
-
-const NODE = 68;
-const ROW = 116;
-const PAD_Y = 40;
 
 interface Props {
   activities: ActivityNode[];
@@ -23,167 +10,150 @@ interface Props {
 }
 
 export function TrailPath({ activities, accent }: Props) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [width, setWidth] = useState(340);
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const update = () => setWidth(el.clientWidth || 340);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  const amplitude = Math.min(width / 2 - NODE / 2 - 20, 88);
-  const centerX = width / 2;
-
-  const points = activities.map((a, i) => ({
-    activity: a,
-    x: centerX + Math.sin(i * (Math.PI / 2)) * amplitude,
-    y: PAD_Y + i * ROW,
-  }));
-
-  const height = PAD_Y * 2 + Math.max(points.length - 1, 0) * ROW + NODE;
-
-  // Smooth vertical curve through the nodes.
-  let d = "";
-  points.forEach((p, i) => {
-    if (i === 0) {
-      d += `M ${p.x} ${p.y + NODE / 2}`;
-      return;
-    }
-    const prev = points[i - 1];
-    const y1 = prev.y + NODE / 2;
-    const y2 = p.y + NODE / 2;
-    const mid = (y1 + y2) / 2;
-    d += ` C ${prev.x} ${mid}, ${p.x} ${mid}, ${p.x} ${y2}`;
-  });
-
-  const nextIndex = points.findIndex(
-    (p) =>
-      p.activity.state === "available" ||
-      p.activity.state === "unlocked" ||
-      p.activity.state === "in_progress",
+  const currentIndex = activities.findIndex(
+    (a) =>
+      a.state === "available" ||
+      a.state === "unlocked" ||
+      a.state === "in_progress",
   );
 
   return (
-    <div ref={ref} className="relative w-full" style={{ height }}>
-      <svg
-        className="pointer-events-none absolute inset-0"
-        width={width}
-        height={height}
-        aria-hidden
-      >
-        <path
-          d={d}
-          fill="none"
-          strokeWidth={14}
-          strokeLinecap="round"
-          stroke="var(--secondary)"
-        />
-        <path
-          d={d}
-          fill="none"
-          strokeWidth={4}
-          strokeLinecap="round"
-          strokeDasharray="2 16"
-          stroke="color-mix(in oklab, var(--trail-accent) 70%, transparent)"
-          style={{ ["--trail-accent" as string]: accent }}
-        />
-      </svg>
+    <ol
+      className="relative flex flex-col"
+      style={{ ["--trail-accent" as string]: accent }}
+    >
+      {activities.map((activity, i) => {
+        const p = getActivityPresentation(activity);
+        const locked = activity.state === "locked";
+        const completed = activity.state === "completed";
+        const isCurrent = i === currentIndex;
 
-      {points.map((p, i) => {
-        const a = p.activity;
-        const Icon = KIND_ICON[a.kind];
-        const isNext = i === nextIndex;
-        const locked = a.state === "locked";
-        const completed = a.state === "completed";
-        const highlight = a.flags.highlight || a.state === "available";
-
-        const content = (
-          <>
-            <span
-              className={cn(
-                "grid place-items-center rounded-full border-2 transition-transform duration-200",
-                locked
-                  ? "border-border bg-secondary text-muted-foreground"
-                  : "text-background",
-                !locked && "group-active:translate-y-0.5",
-              )}
-              style={{
-                width: NODE,
-                height: NODE,
-                background: locked
-                  ? undefined
-                  : completed
-                    ? "var(--success)"
-                    : "var(--trail-accent)",
-                borderColor: locked
-                  ? undefined
-                  : "color-mix(in oklab, black 25%, transparent)",
-                boxShadow: locked ? undefined : "var(--shadow-node)",
-                ["--trail-accent" as string]: accent,
-              }}
-            >
-              {locked ? (
-                <Lock className="h-6 w-6" />
-              ) : completed ? (
-                <Check className="h-7 w-7" strokeWidth={3} />
-              ) : a.state === "in_progress" ? (
-                <Play className="h-6 w-6 fill-current" />
-              ) : (
-                <Icon className="h-6 w-6" strokeWidth={2.4} />
-              )}
-            </span>
-            <span className="mt-1.5 block text-center font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
-              {a.id}
-            </span>
-          </>
-        );
-
-        return (
+        const card = (
           <div
-            key={a.id}
-            className="absolute"
-            style={{ left: p.x - NODE / 2, top: p.y, width: NODE }}
+            className={cn(
+              "relative rounded-3xl border p-4 transition-all duration-200",
+              locked
+                ? "border-border bg-card/50"
+                : "border-border bg-card group-hover:-translate-y-0.5",
+            )}
+            style={{
+              boxShadow: locked ? undefined : "var(--shadow-card)",
+              borderColor: isCurrent
+                ? "color-mix(in oklab, var(--trail-accent) 55%, transparent)"
+                : undefined,
+              background: isCurrent
+                ? "color-mix(in oklab, var(--trail-accent) 10%, var(--card))"
+                : undefined,
+            }}
           >
-            {highlight && !locked && (
+            <div className="flex items-start gap-3">
               <span
-                aria-hidden
-                className="absolute inset-0 animate-ping rounded-full"
+                className={cn(
+                  "grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-xl",
+                  locked && "grayscale opacity-60",
+                )}
                 style={{
-                  background:
-                    "color-mix(in oklab, var(--ping-accent) 35%, transparent)",
-                  ["--ping-accent" as string]: accent,
-                  height: NODE,
+                  background: completed
+                    ? "color-mix(in oklab, var(--success) 22%, transparent)"
+                    : "color-mix(in oklab, var(--trail-accent) 18%, transparent)",
+                  border: `1px solid ${
+                    completed
+                      ? "color-mix(in oklab, var(--success) 45%, transparent)"
+                      : "color-mix(in oklab, var(--trail-accent) 40%, transparent)"
+                  }`,
                 }}
-              />
-            )}
-            {locked ? (
-              <div className="group cursor-not-allowed opacity-70">{content}</div>
-            ) : (
-              <Link
-                to="/activity/$activityId"
-                params={{ activityId: a.id }}
-                className="group relative block focus-visible:outline-none"
-                aria-label={`Open activity ${a.id}`}
+                aria-hidden
               >
-                {content}
-              </Link>
-            )}
-            {isNext && (
+                {p.emoji}
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  {p.subtitle}
+                </p>
+                <h3
+                  className={cn(
+                    "mt-0.5 text-base leading-tight font-semibold text-balance",
+                    locked && "text-muted-foreground",
+                  )}
+                >
+                  {p.name}
+                </h3>
+              </div>
+
               <span
-                className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-background"
-                style={{ background: accent }}
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full"
+                style={{
+                  background: locked
+                    ? "var(--secondary)"
+                    : completed
+                      ? "var(--success)"
+                      : "var(--trail-accent)",
+                  color: locked ? undefined : "var(--background)",
+                }}
               >
-                Next
+                {locked ? (
+                  <Lock className="h-4 w-4 text-muted-foreground" />
+                ) : completed ? (
+                  <Check className="h-4 w-4" strokeWidth={3} />
+                ) : (
+                  <Play className="h-3.5 w-3.5 fill-current" />
+                )}
+              </span>
+            </div>
+
+            {isCurrent && (
+              <span
+                className="mt-3 inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-background"
+                style={{ background: "var(--trail-accent)" }}
+              >
+                Continue here
               </span>
             )}
           </div>
         );
+
+        return (
+          <li key={activity.id} className="relative pl-9">
+            {/* spine */}
+            <span
+              aria-hidden
+              className="absolute left-[13px] top-0 w-[3px] rounded-full"
+              style={{
+                height: i === activities.length - 1 ? "34px" : "100%",
+                background: completed
+                  ? "color-mix(in oklab, var(--success) 60%, transparent)"
+                  : "var(--secondary)",
+              }}
+            />
+            <span
+              aria-hidden
+              className="absolute left-[7px] top-[26px] h-4 w-4 rounded-full border-[3px] border-background"
+              style={{
+                background: locked
+                  ? "var(--secondary)"
+                  : completed
+                    ? "var(--success)"
+                    : "var(--trail-accent)",
+              }}
+            />
+            <div className="pb-4">
+              {locked ? (
+                <div className="cursor-not-allowed opacity-70">{card}</div>
+              ) : (
+                <Link
+                  to="/activity/$activityId"
+                  params={{ activityId: activity.id }}
+                  className="group block focus-visible:outline-none"
+                  aria-label={`Open ${p.name}`}
+                >
+                  {card}
+                </Link>
+              )}
+            </div>
+          </li>
+        );
       })}
-    </div>
+    </ol>
   );
 }
