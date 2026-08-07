@@ -339,21 +339,39 @@ const studyAreas: StudyArea[] = [
     id: "sa2",
     order: 2,
     trailId: "t2",
-    unlock: { type: "study_area_completed", studyAreaId: "sa1" },
+    unlock: { type: "none" },
   },
   {
     id: "sa3",
     order: 3,
     trailId: "t3",
-    unlock: { type: "study_area_completed", studyAreaId: "sa2" },
+    unlock: { type: "none" },
   },
-  ...EXTRA.map((e) => e.area),
+  ...EXTRA.map((e) => ({ ...e.area, unlock: { type: "none" } as const })),
 ];
+
+// Every study area is open from the start: the ordering that matters is the
+// one *inside* each trail, so each trail's first activity is always available.
+const ALL_ACTIVITIES: ActivityNode[] = [
+  ...A1,
+  ...A2,
+  ...A3,
+  ...EXTRA.flatMap((e) => e.activities),
+].map((a) =>
+  a.order === 1
+    ? {
+        ...a,
+        state: "available" as const,
+        unlock: { type: "none" as const },
+        flags: { ...a.flags, highlight: true },
+      }
+    : a,
+);
 
 export const navigationStructure: NavigationStructure = {
   studyAreas,
   trails,
-  activities: [...A1, ...A2, ...A3, ...EXTRA.flatMap((e) => e.activities)],
+  activities: ALL_ACTIVITIES,
 };
 
 // -------- Lookup helpers (structural only) --------
