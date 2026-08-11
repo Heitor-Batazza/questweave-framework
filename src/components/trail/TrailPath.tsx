@@ -1,5 +1,6 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Check, Lock, Star } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 import type { ActivityNode } from "@/lib/navigation/types";
 import { getActivityPresentation } from "@/lib/navigation/activity-presentation";
 import { cn } from "@/lib/utils";
@@ -10,18 +11,62 @@ interface Props {
 }
 
 /** Geometry of the squared, winding path (in SVG user units = px). */
-const WIDTH = 300;
-const ROW = 116;
-const PAD_TOP = 44;
-const NODE = 58;
+const ROW = 124;
+const PAD_TOP = 52;
+const NODE = 56;
+const CORNER = 14;
+const STROKE = 16;
 /** Horizontal lane positions, cycled to build the zig-zag. */
-const LANES = [0.5, 0.78, 0.78, 0.5, 0.22, 0.22];
+const LANES = [0.5, 0.86, 0.86, 0.5, 0.14, 0.14];
 
-function laneX(i: number) {
-  return Math.round(LANES[i % LANES.length] * WIDTH);
+/** Orthogonal polyline with slightly rounded (but still square-ish) corners. */
+function squarePath(pts: { x: number; y: number }[], r: number) {
+  if (pts.length < 2) return "";
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const prev = pts[i - 1];
+    const cur = pts[i];
+    const next = pts[i + 1];
+    const inLen = Math.hypot(cur.x - prev.x, cur.y - prev.y);
+    const outLen = Math.hypot(next.x - cur.x, next.y - cur.y);
+    const rr = Math.min(r, inLen / 2, outLen / 2);
+    const a = {
+      x: cur.x + ((prev.x - cur.x) / (inLen || 1)) * rr,
+      y: cur.y + ((prev.y - cur.y) / (inLen || 1)) * rr,
+    };
+    const b = {
+      x: cur.x + ((next.x - cur.x) / (outLen || 1)) * rr,
+      y: cur.y + ((next.y - cur.y) / (outLen || 1)) * rr,
+    };
+    d += ` L ${a.x} ${a.y} Q ${cur.x} ${cur.y} ${b.x} ${b.y}`;
+  }
+  const last = pts[pts.length - 1];
+  d += ` L ${last.x} ${last.y}`;
+  return d;
 }
 
 export function TrailPath({ activities, accent }: Props) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(320);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setWidth(Math.round(entry.contentRect.width));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const laneX = (i: number) =>
+    Math.round(
+      Math.min(
+        width - NODE / 2 - 8,
+        Math.max(NODE / 2 + 8, LANES[i % LANES.length] * width),
+      ),
+    );
+
   const currentIndex = activities.findIndex(
     (a) =>
       a.state === "available" ||
@@ -39,20 +84,21 @@ export function TrailPath({ activities, accent }: Props) {
   const segments = points.slice(0, -1).map((p, i) => {
     const n = points[i + 1];
     const midY = (p.y + n.y) / 2;
+    const pts =
+      p.x === n.x
+        ? [p, n]
+        : [p, { x: p.x, y: midY }, { x: n.x, y: midY }, n];
     return {
-      d:
-        p.x === n.x
-          ? `M ${p.x} ${p.y} L ${n.x} ${n.y}`
-          : `M ${p.x} ${p.y} L ${p.x} ${midY} L ${n.x} ${midY} L ${n.x} ${n.y}`,
+      d: squarePath(pts, CORNER),
       done: activities[i].state === "completed",
     };
   });
 
   return (
     <div
-      className="relative mx-auto"
+      ref={wrapRef}
+      className="relative w-full"
       style={{
-        width: WIDTH,
         height,
         ["--trail-accent" as string]: accent,
       }}
@@ -60,24 +106,39 @@ export function TrailPath({ activities, accent }: Props) {
       <svg
         aria-hidden
         className="absolute inset-0"
-        width={WIDTH}
+        width={width}
         height={height}
-        viewBox={`0 0 ${WIDTH} ${height}`}
+        viewBox={`0 0 ${width} ${height}`}
       >
         {segments.map((s, i) => (
-          <path
-            key={i}
-            d={s.d}
-            fill="none"
-            strokeWidth={14}
-            strokeLinecap="square"
-            strokeLinejoin="miter"
-            stroke={
-              s.done
-                ? "color-mix(in oklab, var(--success) 45%, transparent)"
-                : "var(--secondary)"
-            }
-          />
+          <g key={i}>
+            <path
+              d={s.d}
+              fill="none"
+              strokeWidth={STROKE + 6}
+              strokeLinecap="butt"
+              stroke="color-mix(in oklab, var(--background) 70%, transparent)"
+            />
+            <path
+              d={s.d}
+              fill="none"
+              strokeWidth={STROKE}
+              strokeLinecap="butt"
+              stroke={
+                s.done
+                  ? "color-mix(in oklab, var(--success) 45%, transparent)"
+                  : "var(--secondary)"
+              }
+            />
+            <path
+              d={s.d}
+              fill="none"
+              strokeWidth={2}
+              strokeDasharray="2 10"
+              strokeLinecap="round"
+              stroke="color-mix(in oklab, var(--foreground) 14%, transparent)"
+            />
+          </g>
         ))}
       </svg>
 
@@ -90,10 +151,11 @@ export function TrailPath({ activities, accent }: Props) {
           const { x, y } = points[i];
           const labelLeft = x > WIDTH / 2;
 
+          const Icon = p.icon;
           const node = (
             <span
               className={cn(
-                "grid place-items-center rounded-[14px] border-2 text-xl transition-transform duration-150",
+                "grid place-items-center rounded-[16px] border-2 transition-transform duration-150",
                 locked ? "opacity-70 grayscale" : "group-hover:-translate-y-0.5",
               )}
               style={{
@@ -121,7 +183,15 @@ export function TrailPath({ activities, accent }: Props) {
               {locked ? (
                 <Lock className="h-5 w-5 text-muted-foreground" />
               ) : (
-                <span aria-hidden>{p.emoji}</span>
+                <Icon
+                  className="h-6 w-6"
+                  strokeWidth={2}
+                  style={{
+                    color: completed
+                      ? "var(--success)"
+                      : "var(--trail-accent)",
+                  }}
+                />
               )}
               {completed && (
                 <span
@@ -133,11 +203,12 @@ export function TrailPath({ activities, accent }: Props) {
               )}
               {isCurrent && (
                 <span
-                  className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-[6px] text-background"
-                  style={{ background: "var(--trail-accent)" }}
-                >
-                  <Star className="h-3 w-3 fill-current" />
-                </span>
+                  className="pointer-events-none absolute -inset-1.5 rounded-[20px] border-2"
+                  style={{
+                    borderColor:
+                      "color-mix(in oklab, var(--trail-accent) 45%, transparent)",
+                  }}
+                />
               )}
             </span>
           );
@@ -145,7 +216,7 @@ export function TrailPath({ activities, accent }: Props) {
           const label = (
             <span
               className={cn(
-                "pointer-events-none absolute top-1/2 w-[104px] -translate-y-1/2 leading-tight",
+                "pointer-events-none absolute top-1/2 w-[132px] -translate-y-1/2 leading-tight",
                 labelLeft ? "right-full mr-3 text-right" : "left-full ml-3",
               )}
             >
