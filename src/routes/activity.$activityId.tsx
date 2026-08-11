@@ -71,8 +71,11 @@ function ActivityScreen() {
             </p>
             <h1 className="truncate text-base font-semibold">{p.name}</h1>
           </div>
-          <span className="text-xl" aria-hidden>
-            {p.emoji}
+          <span
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border bg-secondary"
+            aria-hidden
+          >
+            <p.icon className="h-5 w-5" />
           </span>
         </div>
         <div className="mx-auto flex w-full max-w-2xl gap-1.5 px-4 pb-3 sm:px-6">
