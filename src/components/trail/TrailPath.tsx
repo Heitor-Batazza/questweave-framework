@@ -149,7 +149,7 @@ export function TrailPath({ activities, accent }: Props) {
           const completed = activity.state === "completed";
           const isCurrent = i === currentIndex;
           const { x, y } = points[i];
-          const labelLeft = x > WIDTH / 2;
+          const labelLeft = x > width / 2;
 
           const Icon = p.icon;
           const node = (

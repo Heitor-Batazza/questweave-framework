@@ -69,7 +69,7 @@ function TrailScreen() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-md px-4 pb-16 pt-2 sm:px-6">
+      <main className="mx-auto w-full max-w-2xl px-6 pb-16 pt-2 sm:px-10 sm:px-6">
         <TrailPath activities={activities} accent={accent} />
       </main>
     </div>
