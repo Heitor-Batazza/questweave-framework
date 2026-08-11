@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Check, Lock, Play } from "lucide-react";
+import { Check, Lock, Star } from "lucide-react";
 import type { ActivityNode } from "@/lib/navigation/types";
 import { getActivityPresentation } from "@/lib/navigation/activity-presentation";
 import { cn } from "@/lib/utils";
@@ -7,6 +7,18 @@ import { cn } from "@/lib/utils";
 interface Props {
   activities: ActivityNode[];
   accent: string;
+}
+
+/** Geometry of the squared, winding path (in SVG user units = px). */
+const WIDTH = 300;
+const ROW = 116;
+const PAD_TOP = 44;
+const NODE = 58;
+/** Horizontal lane positions, cycled to build the zig-zag. */
+const LANES = [0.5, 0.78, 0.78, 0.5, 0.22, 0.22];
+
+function laneX(i: number) {
+  return Math.round(LANES[i % LANES.length] * WIDTH);
 }
 
 export function TrailPath({ activities, accent }: Props) {
@@ -17,143 +29,171 @@ export function TrailPath({ activities, accent }: Props) {
       a.state === "in_progress",
   );
 
+  const points = activities.map((_, i) => ({
+    x: laneX(i),
+    y: PAD_TOP + i * ROW,
+  }));
+  const height = PAD_TOP * 2 + Math.max(0, activities.length - 1) * ROW;
+
+  // Orthogonal (right-angle) polyline between consecutive nodes.
+  const segments = points.slice(0, -1).map((p, i) => {
+    const n = points[i + 1];
+    const midY = (p.y + n.y) / 2;
+    return {
+      d:
+        p.x === n.x
+          ? `M ${p.x} ${p.y} L ${n.x} ${n.y}`
+          : `M ${p.x} ${p.y} L ${p.x} ${midY} L ${n.x} ${midY} L ${n.x} ${n.y}`,
+      done: activities[i].state === "completed",
+    };
+  });
+
   return (
-    <ol
-      className="relative flex flex-col"
-      style={{ ["--trail-accent" as string]: accent }}
+    <div
+      className="relative mx-auto"
+      style={{
+        width: WIDTH,
+        height,
+        ["--trail-accent" as string]: accent,
+      }}
     >
-      {activities.map((activity, i) => {
-        const p = getActivityPresentation(activity);
-        const locked = activity.state === "locked";
-        const completed = activity.state === "completed";
-        const isCurrent = i === currentIndex;
+      <svg
+        aria-hidden
+        className="absolute inset-0"
+        width={WIDTH}
+        height={height}
+        viewBox={`0 0 ${WIDTH} ${height}`}
+      >
+        {segments.map((s, i) => (
+          <path
+            key={i}
+            d={s.d}
+            fill="none"
+            strokeWidth={14}
+            strokeLinecap="square"
+            strokeLinejoin="miter"
+            stroke={
+              s.done
+                ? "color-mix(in oklab, var(--success) 45%, transparent)"
+                : "var(--secondary)"
+            }
+          />
+        ))}
+      </svg>
 
-        const card = (
-          <div
-            className={cn(
-              "relative rounded-3xl border p-4 transition-all duration-200",
-              locked
-                ? "border-border bg-card/50"
-                : "border-border bg-card group-hover:-translate-y-0.5",
-            )}
-            style={{
-              boxShadow: locked ? undefined : "var(--shadow-card)",
-              borderColor: isCurrent
-                ? "color-mix(in oklab, var(--trail-accent) 55%, transparent)"
-                : undefined,
-              background: isCurrent
-                ? "color-mix(in oklab, var(--trail-accent) 10%, var(--card))"
-                : undefined,
-            }}
-          >
-            <div className="flex items-start gap-3">
-              <span
-                className={cn(
-                  "grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-xl",
-                  locked && "grayscale opacity-60",
-                )}
-                style={{
-                  background: completed
-                    ? "color-mix(in oklab, var(--success) 22%, transparent)"
-                    : "color-mix(in oklab, var(--trail-accent) 18%, transparent)",
-                  border: `1px solid ${
-                    completed
-                      ? "color-mix(in oklab, var(--success) 45%, transparent)"
-                      : "color-mix(in oklab, var(--trail-accent) 40%, transparent)"
-                  }`,
-                }}
-                aria-hidden
-              >
-                {p.emoji}
-              </span>
+      <ol className="absolute inset-0">
+        {activities.map((activity, i) => {
+          const p = getActivityPresentation(activity);
+          const locked = activity.state === "locked";
+          const completed = activity.state === "completed";
+          const isCurrent = i === currentIndex;
+          const { x, y } = points[i];
+          const labelLeft = x > WIDTH / 2;
 
-              <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                  {p.subtitle}
-                </p>
-                <h3
-                  className={cn(
-                    "mt-0.5 text-base leading-tight font-semibold text-balance",
-                    locked && "text-muted-foreground",
-                  )}
-                >
-                  {p.name}
-                </h3>
-              </div>
-
-              <span
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-full"
-                style={{
-                  background: locked
-                    ? "var(--secondary)"
-                    : completed
-                      ? "var(--success)"
-                      : "var(--trail-accent)",
-                  color: locked ? undefined : "var(--background)",
-                }}
-              >
-                {locked ? (
-                  <Lock className="h-4 w-4 text-muted-foreground" />
-                ) : completed ? (
-                  <Check className="h-4 w-4" strokeWidth={3} />
-                ) : (
-                  <Play className="h-3.5 w-3.5 fill-current" />
-                )}
-              </span>
-            </div>
-
-            {isCurrent && (
-              <span
-                className="mt-3 inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-background"
-                style={{ background: "var(--trail-accent)" }}
-              >
-                Continue here
-              </span>
-            )}
-          </div>
-        );
-
-        return (
-          <li key={activity.id} className="relative pl-9">
-            {/* spine */}
+          const node = (
             <span
-              aria-hidden
-              className="absolute left-[13px] top-0 w-[3px] rounded-full"
+              className={cn(
+                "grid place-items-center rounded-[14px] border-2 text-xl transition-transform duration-150",
+                locked ? "opacity-70 grayscale" : "group-hover:-translate-y-0.5",
+              )}
               style={{
-                height: i === activities.length - 1 ? "34px" : "100%",
-                background: completed
-                  ? "color-mix(in oklab, var(--success) 60%, transparent)"
-                  : "var(--secondary)",
-              }}
-            />
-            <span
-              aria-hidden
-              className="absolute left-[7px] top-[26px] h-4 w-4 rounded-full border-[3px] border-background"
-              style={{
+                width: NODE,
+                height: NODE,
                 background: locked
                   ? "var(--secondary)"
                   : completed
-                    ? "var(--success)"
-                    : "var(--trail-accent)",
+                    ? "color-mix(in oklab, var(--success) 26%, var(--card))"
+                    : "color-mix(in oklab, var(--trail-accent) 26%, var(--card))",
+                borderColor: locked
+                  ? "var(--border)"
+                  : completed
+                    ? "color-mix(in oklab, var(--success) 65%, transparent)"
+                    : "color-mix(in oklab, var(--trail-accent) 75%, transparent)",
+                boxShadow: locked
+                  ? undefined
+                  : `0 4px 0 0 ${
+                      completed
+                        ? "color-mix(in oklab, var(--success) 55%, transparent)"
+                        : "color-mix(in oklab, var(--trail-accent) 55%, transparent)"
+                    }`,
               }}
-            />
-            <div className="pb-4">
+            >
               {locked ? (
-                <div className="cursor-not-allowed opacity-70">{card}</div>
+                <Lock className="h-5 w-5 text-muted-foreground" />
+              ) : (
+                <span aria-hidden>{p.emoji}</span>
+              )}
+              {completed && (
+                <span
+                  className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-[6px] text-background"
+                  style={{ background: "var(--success)" }}
+                >
+                  <Check className="h-3 w-3" strokeWidth={3} />
+                </span>
+              )}
+              {isCurrent && (
+                <span
+                  className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-[6px] text-background"
+                  style={{ background: "var(--trail-accent)" }}
+                >
+                  <Star className="h-3 w-3 fill-current" />
+                </span>
+              )}
+            </span>
+          );
+
+          const label = (
+            <span
+              className={cn(
+                "pointer-events-none absolute top-1/2 w-[104px] -translate-y-1/2 leading-tight",
+                labelLeft ? "right-full mr-3 text-right" : "left-full ml-3",
+              )}
+            >
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                {p.label}
+              </span>
+              <span
+                className={cn(
+                  "block text-[12px] font-semibold text-balance",
+                  locked && "text-muted-foreground",
+                )}
+              >
+                {p.name}
+              </span>
+            </span>
+          );
+
+          return (
+            <li
+              key={activity.id}
+              className="absolute"
+              style={{
+                left: x - NODE / 2,
+                top: y - NODE / 2,
+                width: NODE,
+                height: NODE,
+              }}
+            >
+              {locked ? (
+                <div className="relative cursor-not-allowed">
+                  {node}
+                  {label}
+                </div>
               ) : (
                 <Link
                   to="/activity/$activityId"
                   params={{ activityId: activity.id }}
-                  className="group block focus-visible:outline-none"
+                  className="group relative block focus-visible:outline-none"
                   aria-label={`Open ${p.name}`}
                 >
-                  {card}
+                  {node}
+                  {label}
                 </Link>
               )}
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
