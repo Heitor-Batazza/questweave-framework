@@ -1,5 +1,14 @@
-// Presentation-only metadata for activities (names, emoji, exercise type).
+// Presentation-only metadata for activities (names, icon, exercise type).
 // No pedagogical content — just labels so the trail stops looking generic.
+import type { LucideIcon } from "lucide-react";
+import {
+  BookOpenText,
+  Compass,
+  Headphones,
+  PenLine,
+  Sparkles,
+  Trophy,
+} from "lucide-react";
 import type { ActivityNode } from "./types";
 
 export type ExerciseType =
@@ -12,16 +21,16 @@ export type ExerciseType =
 
 export interface ExerciseTypeMeta {
   label: string;
-  emoji: string;
+  icon: LucideIcon;
 }
 
 export const EXERCISE_TYPE_META: Record<ExerciseType, ExerciseTypeMeta> = {
-  grammar: { label: "Grammar", emoji: "📘" },
-  listening: { label: "Listening", emoji: "🎧" },
-  reading: { label: "Reading", emoji: "📖" },
-  review: { label: "Review", emoji: "🧭" },
-  bonus: { label: "Bonus", emoji: "🎁" },
-  challenge: { label: "Challenge", emoji: "🏆" },
+  grammar: { label: "Grammar", icon: PenLine },
+  listening: { label: "Listening", icon: Headphones },
+  reading: { label: "Reading", icon: BookOpenText },
+  review: { label: "Review", icon: Compass },
+  bonus: { label: "Bonus", icon: Sparkles },
+  challenge: { label: "Challenge", icon: Trophy },
 };
 
 const NAMES: Record<ExerciseType, string[]> = {
@@ -78,7 +87,7 @@ export function getExerciseType(activity: ActivityNode): ExerciseType {
 export interface ActivityPresentation {
   type: ExerciseType;
   label: string;
-  emoji: string;
+  icon: LucideIcon;
   name: string;
   subtitle: string;
 }
@@ -94,7 +103,7 @@ export function getActivityPresentation(
   return {
     type,
     label: meta.label,
-    emoji: meta.emoji,
+    icon: meta.icon,
     name,
     subtitle: `${meta.label} · Step ${activity.order}`,
   };
