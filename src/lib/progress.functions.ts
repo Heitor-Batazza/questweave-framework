@@ -42,7 +42,8 @@ export const getProgressStats = createServerFn({ method: "GET" })
       ? Math.round((completedActivities / totalActivities) * 100)
       : 0;
 
-    const perArea = navigationStructure.studyAreas.map((area, index) => {
+    const perArea = navigationStructure.studyAreas.map((area) => {
+      const presentation = getAreaPresentation(area.id);
       const trail = navigationStructure.trails.find((t) => t.studyAreaId === area.id);
       const activityIds = trail ? trail.activityIds : [];
       const total = activityIds.length;
@@ -51,13 +52,14 @@ export const getProgressStats = createServerFn({ method: "GET" })
 
       return {
         areaId: area.id,
-        title: area.id,
+        title: presentation.name,
         total,
         completed,
         percent,
-        accentIndex: index % 7,
+        accentIndex: presentation.accent,
       };
     });
+
 
     return {
       totalActivities,
