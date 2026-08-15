@@ -50,13 +50,25 @@ function ActivityScreen() {
   const activity = getActivity(activityId);
   if (!activity) throw notFound();
 
-  const area = getAreaPresentation(activity.studyAreaId);
-  const accent = AREA_ACCENT_VAR[area.accent];
-  const p = getActivityPresentation(activity);
-
+  const router = useRouter();
+  const markComplete = useServerFn(markActivityComplete);
   const [step, setStep] = useState(0);
   const [answer, setAnswer] = useState("");
+  const [completing, setCompleting] = useState(false);
+  const [completed, setCompleted] = useState(false);
   const section = SECTIONS[step];
+
+  async function handleComplete() {
+    setCompleting(true);
+    try {
+      await markComplete({ data: { activityId } });
+      setCompleted(true);
+      await router.invalidate();
+    } finally {
+      setCompleting(false);
+    }
+  }
+
 
   return (
     <div
