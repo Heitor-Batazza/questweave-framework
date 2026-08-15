@@ -1,13 +1,21 @@
 import { useState } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, ChevronLeft, ChevronRight, Send } from "lucide-react";
+import {
+  createFileRoute,
+  Link,
+  notFound,
+  useRouter,
+} from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, Send } from "lucide-react";
 import { getActivity } from "@/lib/navigation/structure";
 import {
   AREA_ACCENT_VAR,
   getAreaPresentation,
 } from "@/lib/navigation/presentation";
 import { getActivityPresentation } from "@/lib/navigation/activity-presentation";
+import { markActivityComplete } from "@/lib/profile.functions";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/activity/$activityId")({
   head: () => ({
