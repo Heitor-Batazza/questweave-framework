@@ -64,9 +64,10 @@ function AuthPage() {
     if (result.redirected) {
       return;
     }
-    if (result.session) {
+    if (result.tokens) {
       router.navigate({ to: "/profile" });
     }
+
   }
 
   return (
