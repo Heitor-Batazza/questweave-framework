@@ -174,6 +174,23 @@ function ActivityScreen() {
             <Send className="h-4 w-4" />
             Check answer
           </button>
+
+          <button
+            type="button"
+            onClick={handleComplete}
+            disabled={completing || completed}
+            className={cn(
+              "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold transition-colors",
+              completed
+                ? "bg-success/20 text-success hover:bg-success/30"
+                : "bg-card text-foreground hover:bg-secondary",
+              "disabled:cursor-not-allowed disabled:opacity-60",
+            )}
+          >
+            <Check className="h-4 w-4" />
+            {completed ? "Completed" : completing ? "Saving..." : "Mark as complete"}
+          </button>
+
         </section>
       </main>
 
