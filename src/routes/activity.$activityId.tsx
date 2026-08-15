@@ -69,6 +69,11 @@ function ActivityScreen() {
     }
   }
 
+  const area = getAreaPresentation(activity.studyAreaId);
+  const accent = AREA_ACCENT_VAR[area.accent];
+  const p = getActivityPresentation(activity);
+
+
 
   return (
     <div
