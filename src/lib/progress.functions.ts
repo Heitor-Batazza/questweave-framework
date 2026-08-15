@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { navigationStructure } from "@/lib/navigation/structure";
+import { getAreaPresentation } from "@/lib/navigation/presentation";
+
 
 export interface ProgressStats {
   totalActivities: number;
