@@ -1,7 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { User } from "lucide-react";
 import { navigationStructure } from "@/lib/navigation/structure";
 import { isAreaUnlocked } from "@/lib/navigation/presentation";
 import { AreaCard } from "@/components/study-areas/AreaCard";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
