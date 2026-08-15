@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TrailTrailIdRouteImport } from './routes/trail.$trailId'
 import { Route as ActivityActivityIdRouteImport } from './routes/activity.$activityId'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,36 +37,47 @@ const ActivityActivityIdRoute = ActivityActivityIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/activity/$activityId': typeof ActivityActivityIdRoute
   '/trail/$trailId': typeof TrailTrailIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/activity/$activityId': typeof ActivityActivityIdRoute
   '/trail/$trailId': typeof TrailTrailIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/activity/$activityId': typeof ActivityActivityIdRoute
   '/trail/$trailId': typeof TrailTrailIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/activity/$activityId' | '/trail/$trailId'
+  fullPaths: '/' | '/auth' | '/activity/$activityId' | '/trail/$trailId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/activity/$activityId' | '/trail/$trailId'
-  id: '__root__' | '/' | '/activity/$activityId' | '/trail/$trailId'
+  to: '/' | '/auth' | '/activity/$activityId' | '/trail/$trailId'
+  id: '__root__' | '/' | '/auth' | '/activity/$activityId' | '/trail/$trailId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   ActivityActivityIdRoute: typeof ActivityActivityIdRoute
   TrailTrailIdRoute: typeof TrailTrailIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   ActivityActivityIdRoute: ActivityActivityIdRoute,
   TrailTrailIdRoute: TrailTrailIdRoute,
 }
