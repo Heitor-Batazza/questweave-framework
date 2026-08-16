@@ -1,13 +1,21 @@
 import { useState } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ArrowLeft, ChevronLeft, ChevronRight, Send } from "lucide-react";
+import {
+  createFileRoute,
+  Link,
+  notFound,
+  useRouter,
+} from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, Send } from "lucide-react";
 import { getActivity } from "@/lib/navigation/structure";
 import {
   AREA_ACCENT_VAR,
   getAreaPresentation,
 } from "@/lib/navigation/presentation";
 import { getActivityPresentation } from "@/lib/navigation/activity-presentation";
+import { markActivityComplete } from "@/lib/profile.functions";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/activity/$activityId")({
   head: () => ({
@@ -42,13 +50,30 @@ function ActivityScreen() {
   const activity = getActivity(activityId);
   if (!activity) throw notFound();
 
+  const router = useRouter();
+  const markComplete = useServerFn(markActivityComplete);
+  const [step, setStep] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [completing, setCompleting] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const section = SECTIONS[step];
+
+  async function handleComplete() {
+    setCompleting(true);
+    try {
+      await markComplete({ data: { activityId } });
+      setCompleted(true);
+      await router.invalidate();
+    } finally {
+      setCompleting(false);
+    }
+  }
+
   const area = getAreaPresentation(activity.studyAreaId);
   const accent = AREA_ACCENT_VAR[area.accent];
   const p = getActivityPresentation(activity);
 
-  const [step, setStep] = useState(0);
-  const [answer, setAnswer] = useState("");
-  const section = SECTIONS[step];
+
 
   return (
     <div
@@ -149,6 +174,23 @@ function ActivityScreen() {
             <Send className="h-4 w-4" />
             Check answer
           </button>
+
+          <button
+            type="button"
+            onClick={handleComplete}
+            disabled={completing || completed}
+            className={cn(
+              "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold transition-colors",
+              completed
+                ? "bg-success/20 text-success hover:bg-success/30"
+                : "bg-card text-foreground hover:bg-secondary",
+              "disabled:cursor-not-allowed disabled:opacity-60",
+            )}
+          >
+            <Check className="h-4 w-4" />
+            {completed ? "Completed" : completing ? "Saving..." : "Mark as complete"}
+          </button>
+
         </section>
       </main>
 
