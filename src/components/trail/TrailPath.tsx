@@ -117,7 +117,7 @@ export function TrailPath({ activities, accent }: Props) {
               fill="none"
               strokeWidth={STROKE + 6}
               strokeLinecap="butt"
-              stroke="color-mix(in oklab, var(--background) 70%, transparent)"
+              stroke="var(--background)"
             />
             <path
               d={s.d}
@@ -126,8 +126,8 @@ export function TrailPath({ activities, accent }: Props) {
               strokeLinecap="butt"
               stroke={
                 s.done
-                  ? "color-mix(in oklab, var(--success) 45%, transparent)"
-                  : "var(--secondary)"
+                  ? "color-mix(in oklab, var(--success) 30%, var(--background))"
+                  : "var(--surface-2)"
               }
             />
             <path
@@ -164,8 +164,8 @@ export function TrailPath({ activities, accent }: Props) {
                 background: locked
                   ? "var(--secondary)"
                   : completed
-                    ? "color-mix(in oklab, var(--success) 26%, var(--card))"
-                    : "color-mix(in oklab, var(--trail-accent) 26%, var(--card))",
+                    ? "color-mix(in oklab, var(--success) 12%, var(--card))"
+                    : "color-mix(in oklab, var(--trail-accent) 10%, var(--card))",
                 borderColor: locked
                   ? "var(--border)"
                   : completed
@@ -175,8 +175,8 @@ export function TrailPath({ activities, accent }: Props) {
                   ? undefined
                   : `0 4px 0 0 ${
                       completed
-                        ? "color-mix(in oklab, var(--success) 55%, transparent)"
-                        : "color-mix(in oklab, var(--trail-accent) 55%, transparent)"
+                        ? "var(--success)"
+                        : "color-mix(in oklab, var(--trail-accent) 100%, transparent)"
                     }`,
               }}
             >
