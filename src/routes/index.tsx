@@ -32,8 +32,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-background">
       <header
-        className="grid-backdrop relative overflow-hidden border-b border-border"
-        style={{ background: "var(--gradient-hero)" }}
+        className="grid-backdrop relative overflow-hidden border-b border-border bg-background"
       >
         <div className="mx-auto w-full max-w-5xl px-5 pb-8 pt-10 sm:px-8">
           <div className="flex items-start justify-between gap-4">
