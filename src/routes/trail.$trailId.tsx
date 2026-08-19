@@ -61,7 +61,7 @@ function TrailScreen() {
             </p>
           </div>
           <span
-            className="shrink-0 rounded-full px-3 py-1 text-xs font-semibold text-background"
+            className="shrink-0 rounded-full px-3 py-1 text-xs font-semibold text-on-accent"
             style={{ background: accent }}
           >
             {completed}/{activities.length}

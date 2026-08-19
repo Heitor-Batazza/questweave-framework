@@ -77,7 +77,7 @@ export function AreaCard({ area }: { area: StudyArea }) {
         <Link
           to="/trail/$trailId"
           params={{ trailId: area.trailId }}
-          className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-background transition-transform duration-200 active:scale-[0.98]"
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-on-accent transition-transform duration-200 active:scale-[0.98]"
           style={{ background: "var(--card-accent)" }}
         >
           Enter trail

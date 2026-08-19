@@ -195,7 +195,7 @@ export function TrailPath({ activities, accent }: Props) {
               )}
               {completed && (
                 <span
-                  className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-[6px] text-background"
+                  className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-[6px] text-on-accent"
                   style={{ background: "var(--success)" }}
                 >
                   <Check className="h-3 w-3" strokeWidth={3} />
