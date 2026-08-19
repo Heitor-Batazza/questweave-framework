@@ -127,7 +127,7 @@ export function TrailPath({ activities, accent }: Props) {
               stroke={
                 s.done
                   ? "color-mix(in oklab, var(--success) 30%, var(--background))"
-                  : "var(--surface-2)"
+                  : "color-mix(in oklab, var(--primary) 12%, var(--surface-2))"
               }
             />
             <path
