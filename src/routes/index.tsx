@@ -32,8 +32,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-background">
       <header
-        className="relative overflow-hidden border-b border-border"
-        style={{ background: "var(--gradient-hero)" }}
+        className="grid-backdrop relative overflow-hidden border-b border-border bg-background"
       >
         <div className="mx-auto w-full max-w-5xl px-5 pb-8 pt-10 sm:px-8">
           <div className="flex items-start justify-between gap-4">
@@ -41,14 +40,17 @@ function Index() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Your library
               </p>
-              <h1 className="mt-2 text-3xl font-bold sm:text-4xl">Study areas</h1>
+              <h1 className="mt-2 text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
+                Study areas.
+                <span className="block text-primary">Sua trilha.</span>
+              </h1>
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
                 Pick an area and follow its trail. Placeholder content — structure only.
               </p>
             </div>
             <Link
               to="/profile"
-              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border bg-card/70 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-card"
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
               <User className="h-4 w-4" />
               Profile
@@ -76,7 +78,7 @@ function Index() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/70 px-3 py-1.5 font-medium backdrop-blur">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 font-medium">
       <span className="font-semibold text-foreground">{value}</span>
       <span className="text-muted-foreground">{label}</span>
     </span>

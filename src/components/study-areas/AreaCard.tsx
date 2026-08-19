@@ -15,7 +15,7 @@ export function AreaCard({ area }: { area: StudyArea }) {
 
   return (
     <article
-      className="group relative overflow-hidden rounded-3xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_oklab,var(--card-accent)_45%,transparent)]"
+      className="group relative overflow-hidden rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[color-mix(in_oklab,var(--card-accent)_45%,transparent)]"
       style={
         {
           "--card-accent": accent,
@@ -29,7 +29,7 @@ export function AreaCard({ area }: { area: StudyArea }) {
         style={{
           background:
             "color-mix(in oklab, var(--card-accent) 55%, transparent)",
-          opacity: 0.22,
+          opacity: 0.1,
         }}
       />
 
@@ -77,7 +77,7 @@ export function AreaCard({ area }: { area: StudyArea }) {
         <Link
           to="/trail/$trailId"
           params={{ trailId: area.trailId }}
-          className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-background transition-transform duration-200 active:scale-[0.98]"
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-on-accent transition-transform duration-200 active:scale-[0.98]"
           style={{ background: "var(--card-accent)" }}
         >
           Enter trail

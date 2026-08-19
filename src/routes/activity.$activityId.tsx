@@ -168,7 +168,7 @@ function ActivityScreen() {
           <button
             type="button"
             disabled={!answer.trim()}
-            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-background transition-transform duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-on-accent transition-transform duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
             style={{ background: "var(--exercise-accent)" }}
           >
             <Send className="h-4 w-4" />
@@ -215,7 +215,7 @@ function ActivityScreen() {
               setStep((s) => Math.min(SECTIONS.length - 1, s + 1))
             }
             disabled={step === SECTIONS.length - 1}
-            className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-background transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-on-accent transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
             style={{ background: "var(--exercise-accent)" }}
           >
             Next

@@ -61,7 +61,7 @@ function TrailScreen() {
             </p>
           </div>
           <span
-            className="shrink-0 rounded-full px-3 py-1 text-xs font-semibold text-background"
+            className="shrink-0 rounded-xl px-3 py-1.5 text-xs font-semibold text-on-accent"
             style={{ background: accent }}
           >
             {completed}/{activities.length}
@@ -69,7 +69,7 @@ function TrailScreen() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl px-6 pb-16 pt-2 sm:px-10">
+      <main className="grid-backdrop mx-auto w-full max-w-2xl px-6 pb-16 pt-6 sm:px-10">
         <TrailPath activities={activities} accent={accent} />
       </main>
     </div>
